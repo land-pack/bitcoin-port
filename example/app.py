@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
 import simplejson as sjson
 from pprint import pprint
@@ -41,7 +41,7 @@ def api_account_balance(name):
 
 @app.route("/api/getmininginfo")
 def api_getmininginfo():
-    d = rpc_connection.getmininginfo()
+
     return render_json(d)
 
 @app.route("/api/listreceivedbyaddress")
@@ -49,15 +49,31 @@ def api_listreceivedbyaddress():
     d = rpc_connection.listreceivedbyaddress()
     return render_json(d)
 
-#  Rest Of Api
-#  Rest Of Api
-
-
-
 @app.route("/api/validateaddress/<address>")
 def api_validateaddress(address):
     d = rpc_connection.validateaddress(address)
     return render_json(d)
+
+@app.route("/api/status")
+def api_status():
+    """
+    ?q=getInfo
+    """
+    q = request.args.get('q', 'default')
+    q_to_functions = {
+        'getdifficulty': rpc_connection.getdifficulty,
+        'getblockcount': rpc_connection.getblockcount,
+        'getmininginfo': rpc_connection.getmininginfo,
+        'getbestblockhash': rpc_connection.getbestblockhash,
+        'default': lambda : '{"status": "invalid function"}'
+    }
+    d = q_to_functions.get(q, 'default')()
+    return render_json(d)
+
+#  Rest Of Api
+
+
+
 
 @app.route("/api/rawblock/<block_id>")
 def api_rawblock(block_id):
