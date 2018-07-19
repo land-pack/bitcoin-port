@@ -26,10 +26,9 @@ def api_block(block_id):
     d = rpc_connection.getblock(block_id)
     return render_json(d)
 
-
 # Transaction
 @app.route("/api/tx/<tx>")
-def api_transaction(tx):
+def api_tx_check(tx):
     # 5bc975913e48f64934a3e382a48569a7574b336014a5e1707d7683223d4f40ad
     d = rpc_connection.gettransaction(tx)
     return render_json(d)
@@ -41,7 +40,6 @@ def api_account_balance(name):
 
 @app.route("/api/getmininginfo")
 def api_getmininginfo():
-
     return render_json(d)
 
 @app.route("/api/listreceivedbyaddress")
@@ -53,6 +51,15 @@ def api_listreceivedbyaddress():
 def api_validateaddress(address):
     d = rpc_connection.validateaddress(address)
     return render_json(d)
+
+@app.route("/api/tx")
+def api_tx_sendtoaddress():
+    addr = request.args.get('addr')
+    amount = request.args.get('amount')
+    # Also store the request to mysql ...
+    d = rpc_connection.sendtoaddress(addr, amount)
+    return render_json(d)
+
 
 @app.route("/api/status")
 def api_status():
@@ -71,10 +78,6 @@ def api_status():
     return render_json(d)
 
 #  Rest Of Api
-
-
-
-
 @app.route("/api/rawblock/<block_id>")
 def api_rawblock(block_id):
     d = rpc_connection.getrawblock(block_id)
