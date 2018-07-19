@@ -24,9 +24,27 @@ def render_json(d):
 
 @app.route("/api/block/<block_id>")
 def api_block(block_id):
-
     d = rpc_connection.getblock(block_id)
     return render_json(d)
+
+@app.route("/api/rawblock/<block_id>")
+def api_rawblock(block_id):
+    d = rpc_connection.getrawblock(block_id)
+    return render_json(d)
+
+@app.route("/api/block-index/<block_id>")
+def api_block_index(block_index):
+    d = rpc_connection.getrawblock(block_id)
+    return render_json(d)
+
+# Transaction
+@app.route("/api/tx/<tx>")
+def api_transaction(tx):
+    # 5bc975913e48f64934a3e382a48569a7574b336014a5e1707d7683223d4f40ad
+    d = rpc_connection.gettransaction(tx)
+    return render_json(d)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
