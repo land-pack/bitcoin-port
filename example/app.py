@@ -14,18 +14,19 @@ rpc_host = '192.168.1.86:9332'
 rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_password, rpc_host))
 
 
-    
-
-
-
-
-@app.route("/api/block")
-def api_block():
-
-    d = rpc_connection.getblock('0000000000000000079c58e8b5bce4217f7515a74b170049398ed9b8428beb4a')
+def render_json(d):
     d=sjson.dumps(d, use_decimal=True)
     d = json.loads(d)
     return jsonify(d)
+
+
+
+
+@app.route("/api/block/<block_id>")
+def api_block(block_id):
+
+    d = rpc_connection.getblock(block_id)
+    return render_json(d)
 
 if __name__ == '__main__':
     app.run(debug=True)
