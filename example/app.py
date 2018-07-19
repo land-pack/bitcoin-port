@@ -38,6 +38,12 @@ def api_account_balance(name):
     d = rpc_connection.getbalance(name)
     return render_json(d)
 
+@app.route("/api/account/<name>/balance")
+def api_account_balance(name):
+    d = rpc_connection.getbalance(name)
+    return render_json(d)
+
+
 @app.route("/api/getmininginfo")
 def api_getmininginfo():
     return render_json(d)
