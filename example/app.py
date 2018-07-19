@@ -54,9 +54,9 @@ def api_listreceivedbyaddress():
 
 
 
-@app.route("/api/address-validate/<address>")
-def api_address_validate(address):
-    d = rpc_connection.gettransaction(addressx)
+@app.route("/api/validateaddress/<address>")
+def api_validateaddress(address):
+    d = rpc_connection.validateaddress(address)
     return render_json(d)
 
 @app.route("/api/rawblock/<block_id>")
