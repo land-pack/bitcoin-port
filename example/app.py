@@ -38,11 +38,6 @@ def api_account_balance(name):
     d = rpc_connection.getbalance(name)
     return render_json(d)
 
-@app.route("/api/account/<name>/balance")
-def api_account_balance(name):
-    d = rpc_connection.getbalance(name)
-    return render_json(d)
-
 
 @app.route("/api/getmininginfo")
 def api_getmininginfo():
@@ -65,6 +60,17 @@ def api_tx_sendtoaddress():
     # Also store the request to mysql ...
     d = rpc_connection.sendtoaddress(addr, amount)
     return render_json(d)
+
+@app.route("/api/tx/createrawtransaction", methods=['POST'])
+def api_tx_createrawtransaction():
+    body = request.get_json(force=True)
+    txid = body.get('txid')
+    vout = body.get('vout')
+    amount = body.get('amount')
+    address = body.get('address')
+    d = rpc_connection.createrawtransaction([{"txid":txid, "vout":vout}], {address: amount}) # 256 absurdly-high-fee
+    return render_json(d)
+
 
 
 @app.route("/api/status")
