@@ -1,3 +1,4 @@
+import traceback
 from flask import Flask, jsonify, request
 import json
 import simplejson as sjson
@@ -96,6 +97,41 @@ def api_tx_signrawtransaction():
     d = rpc_connection.signrawtransaction(raw_tx_hex, [{"txid":txid, "vout":vout, "scriptPubKey":scriptPubKey, 
             "redeemScript":redeemScript}], [dumpprivkey]) # 256 absurdly-high-fee
     return render_json(d)
+
+@app.route("/api/tx/sendrawtransaction", methods=['POST'])
+def api_tx_sendrawtransaction():
+    """
+	{
+	  "txid":"ab9d02994fbca2f577c8deaa224e82dbfa3b3c5ecf3d3f0fd63aaff1c4f3c28c",
+	  "vout":1,
+	  "amount":0.8,
+	  "address":"2MwkxLxbgdZKGEN4fS8GQATqQGXyRpFbkuf",
+	  "scriptPubKey": "a914317fec65edbff6e4350fbe668cfedaf54ea9061587",
+	  "redeemScript": "0014c21bbdc4a642e391a6401bf30ac3e4e8e9669ea2"
+	}
+    """
+    body = request.get_json(force=True)
+    txid = body.get('txid')
+    vout = body.get('vout')
+    amount = body.get('amount')
+    address = body.get('address')
+    scriptPubKey = body.get('scriptPubKey')
+    redeemScript = body.get('redeemScript')
+    dumpprivkey = body.get('dumpprivkey') if body.get('dumpprivkey') else rpc_connection.dumpprivkey(address)
+    raw_tx_hex = body.get('raw_tx_hex') if body.get('raw_tx_hex') else rpc_connection.createrawtransaction(
+            [{"txid":txid, "vout":vout}], {address: amount}) # 256 absurdly-high-fee
+    hex_object = rpc_connection.signrawtransaction(raw_tx_hex, [{"txid":txid, "vout":vout, "scriptPubKey":scriptPubKey, 
+            "redeemScript":redeemScript}], [dumpprivkey]) # 256 absurdly-high-fee
+    hex_code = hex_object.get("hex")
+    try:
+        d = rpc_connection.sendrawtransaction(hex_code)
+    except:
+        d = {
+            "traceback": traceback.format_exc()
+        }
+    return render_json(d)
+
+
 
 
 
