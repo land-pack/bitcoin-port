@@ -99,6 +99,7 @@ def api_tx_signrawtransaction():
 
 
 
+
 @app.route("/api/status")
 def api_status():
     """
@@ -116,9 +117,9 @@ def api_status():
     return render_json(d)
 
 #  Rest Of Api
-@app.route("/api/rawblock/<block_id>")
-def api_rawblock(block_id):
-    d = rpc_connection.getrawblock(block_id)
+@app.route("/api/tx/decoderawtransaction/<hex_code>")
+def api_tx_decoderawtransaction(hex_code):
+    d = rpc_connection.decoderawtransaction(hex_code)
     return render_json(d)
 
 @app.route("/api/block-index/<block_index>")
