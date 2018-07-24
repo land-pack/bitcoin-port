@@ -10,10 +10,20 @@ rpc_user = 'my_rpc'
 rpc_password= 'my_rpc_password'
 rpc_host = '192.168.1.86:9332'
 
-def submit_raw(rpc_user, rpc_password, rpc_host):
+def submit_raw(rpc_user, rpc_password, rpc_host, recv_addr=None, send_amount=None):
+
+
 
     rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_password, rpc_host))
+    # ...
+    #rpc_connection.walletpassphrase("openos", 10)
+    # validate address
+    ret = rpc_connection.validateaddress(recv_addr) if recv_addr else {}
+
+    # ...
+
     first_unspent = rpc_connection.listunspent()[0]
+    print(first_unspent)
     
     
     address = first_unspent.get("address")
@@ -25,15 +35,20 @@ def submit_raw(rpc_user, rpc_password, rpc_host):
     first_unspent_amount = Decimal(first_unspent.get("amount"))
     
     raw_change_address = rpc_connection.getrawchangeaddress()
-    new_bitcoin_address = rpc_connection.getnewaddress()
+    new_bitcoin_address = recv_addr if recv_addr else  rpc_connection.getnewaddress()
     
+    print("raw_change_address [{}]".format(raw_change_address))
     
     fee_obj = rpc_connection.estimatesmartfee(6)
     fee = fee_obj.get("feerate")
     
     
-    send_amount = first_unspent_amount / 2
-    change_amount = first_unspent_amount / 2 -  fee
+    # check 
+    if send_amount:
+        pass
+    else:
+        send_amount = first_unspent_amount / 2
+        change_amount = first_unspent_amount / 2 -  fee
     
     if change_amount < 0.00001:
         print(change_amount)
@@ -61,5 +76,6 @@ def submit_raw(rpc_user, rpc_password, rpc_host):
 
 if __name__ == '__main__':
     # https://test-insight.bitpay.com/tx/8a73f907a1b44dc2ba00e4a9e0dacb57b745f5cdbd336541be71dca8971c9a93
-    ret = submit_raw(rpc_user, rpc_password, rpc_host)
+    #ret = submit_raw(rpc_user, rpc_password, rpc_host)
+    ret = submit_raw(rpc_user, rpc_password, rpc_host, recv_addr='2NG4gh1WWPerdQUzbdXjAUZ9sG7JBD8iVhT')
     print(ret)
