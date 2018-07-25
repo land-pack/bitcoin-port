@@ -10,7 +10,7 @@ rpc_user = 'my_rpc'
 rpc_password= 'my_rpc_password'
 rpc_host = '192.168.1.86:9332'
 
-def submit_raw(rpc_user, rpc_password, rpc_host, recv_addr=None, send_amount=None):
+def submit_raw(rpc_user, rpc_password, rpc_host, send_addr=None, recv_addr=None, send_amount=None):
 
 
 
@@ -32,8 +32,12 @@ def submit_raw(rpc_user, rpc_password, rpc_host, recv_addr=None, send_amount=Non
     txid = first_unspent.get("txid")
     vout = first_unspent.get("vout")
     
-    first_unspent_amount = Decimal(first_unspent.get("amount"))
-    
+    #first_unspent_amount = Decimal(first_unspent.get("amount"))
+    #username = rpc_connection.getaccountaddress(send_addr)
+    #print(username) 
+    username = 'frank'
+    first_unspent_amount = Decimal(rpc_connection.getbalance(username))
+
     raw_change_address = rpc_connection.getrawchangeaddress()
     new_bitcoin_address = recv_addr if recv_addr else  rpc_connection.getnewaddress()
     
@@ -45,7 +49,8 @@ def submit_raw(rpc_user, rpc_password, rpc_host, recv_addr=None, send_amount=Non
     
     # check 
     if send_amount:
-        pass
+        print(first_unspent_amount, fee, send_amount)
+        change_amount = first_unspent_amount - fee - send_amount 
     else:
         send_amount = first_unspent_amount / 2
         change_amount = first_unspent_amount / 2 -  fee
@@ -77,5 +82,5 @@ def submit_raw(rpc_user, rpc_password, rpc_host, recv_addr=None, send_amount=Non
 if __name__ == '__main__':
     # https://test-insight.bitpay.com/tx/8a73f907a1b44dc2ba00e4a9e0dacb57b745f5cdbd336541be71dca8971c9a93
     #ret = submit_raw(rpc_user, rpc_password, rpc_host)
-    ret = submit_raw(rpc_user, rpc_password, rpc_host, recv_addr='2NG4gh1WWPerdQUzbdXjAUZ9sG7JBD8iVhT')
+    ret = submit_raw(rpc_user, rpc_password, rpc_host, send_addr='2NE6ornfdanveSVEvtfH3PGYYfuVYdcev8s', recv_addr='2NG4gh1WWPerdQUzbdXjAUZ9sG7JBD8iVhT', send_amount=Decimal(0.81))
     print(ret)
