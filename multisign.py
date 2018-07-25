@@ -59,13 +59,29 @@ class MultiSign(object):
         pass
 
     def go(self):
-        amount = 0.01
+        total_amount = self.rpc.getbalance()
+        print(total_amount)
         utxo_vout = 0
         addr1 = self.rpc.getnewaddress()
         addr2 = self.rpc.getnewaddress()
         addr3 = self.rpc.getnewaddress()
         addr4 = self.rpc.getnewaddress() # destination address which we will send to 
+        raw_change_address = self.rpc.getrawchangeaddress()
+        fee_obj = self.rpc.estimatesmartfee(6)
+        print(fee_obj)
+        fee = fee_obj.get("feerate")
         
+        send_amount = total_amount / 2
+        change_amount = total_amount / 2 -  fee
+        
+        if change_amount < 0.00001:
+            print(change_amount)
+            raise Exception("Insufficient funds")
+        change_amount = "%.8f" % change_amount
+        send_amount = "%0.8f" % send_amount
+
+
+
         # validate each address
         #pub_obj_addr1 = self.validate_address(addr1)
         #pub_obj_addr2 = self.validate_address(addr2)
@@ -76,24 +92,32 @@ class MultiSign(object):
         # dump prive key ..
         priv_addr1 = self.dumpprivkey(addr1)
         priv_addr2 = self.dumpprivkey(addr2)
+        priv_addr3 = self.dumpprivkey(addr3)
         # add multi sign address
         ret = self.add_multisig_address(2, [addr1, addr2, pub_key_addr3])
         addr5 = ret.get("address")
         redeemScript = ret.get("redeemScript")
         #
-        txid = self.send_address(addr5, amount)
+        txid = self.send_address(addr5, send_amount)
         # check the transaction by txid
         ret = self.get_rawtransaction(txid, 1)
         vout_obj = ret.get("vout")
         scriptPubKey = vout_obj[0].get("scriptPubKey")
         hex_value = scriptPubKey.get("hex")
         # create a raw transaction
-        ret_hash = self.rpc.createrawtransaction([{"txid": txid, "vout": utxo_vout}], {addr4: amount})
+        ret_hash = self.rpc.createrawtransaction([{"txid": txid, "vout": utxo_vout}], {addr4: send_amount, raw_change_address: change_amount})
         # sign transaction
-        sign_raw_transaction = self.rpc.signrawtransaction(ret_hash, [{"txid":txid, "vout":utxo_vout, "redeemScript": redeemScript, "scriptPubKey": hex_value, "amount": amount}],[ priv_addr1])
+        sign_raw_transaction = self.rpc.signrawtransaction(ret_hash, [{"txid":txid, "vout":utxo_vout, "redeemScript": redeemScript, "scriptPubKey": hex_value, "amount": total_amount}],[ priv_addr1])
+
+        # ..
+        party_hex = sign_raw_transaction.get("hex")
+        print(party_hex)
+        sign_party_transaction = self.rpc.signrawtransaction(party_hex, [{"txid":txid, "vout":utxo_vout, "redeemScript": redeemScript, "scriptPubKey": hex_value, "amount": total_amount}],[ priv_addr3])
+        # send to brodcast
+        ret = self.rpc.sendrawtransaction(sign_party_transaction.get("hex"))
 
 
-        return sign_raw_transaction
+        return ret
     
 if __name__ == '__main__':
     addr = 'tb1qffcx4mpft5lxk9clsz2du4t03elxl4qwx2hu8z'
