@@ -52,11 +52,19 @@ class MultiSign(object):
     def send_address(self, addr, amount):
         return self.rpc.sendtoaddress(addr, amount)
 
+    def get_rawtransaction(self, txid, flag=1):
+        return self.rpc.getrawtransaction(txid, flag)
+
+    def create_raw(self, txid, vout, dest_addr, amount):
+        pass
+
     def go(self):
+        amount = 0.01
+        utxo_vout = 0
         addr1 = self.rpc.getnewaddress()
         addr2 = self.rpc.getnewaddress()
         addr3 = self.rpc.getnewaddress()
-        addr4 = self.rpc.getnewaddress()
+        addr4 = self.rpc.getnewaddress() # destination address which we will send to 
         
         # validate each address
         #pub_obj_addr1 = self.validate_address(addr1)
@@ -71,12 +79,21 @@ class MultiSign(object):
         # add multi sign address
         ret = self.add_multisig_address(2, [addr1, addr2, pub_key_addr3])
         addr5 = ret.get("address")
+        redeemScript = ret.get("redeemScript")
         #
-        ret = self.send_address(addr5, 0.01)
+        txid = self.send_address(addr5, amount)
+        # check the transaction by txid
+        ret = self.get_rawtransaction(txid, 1)
+        vout_obj = ret.get("vout")
+        scriptPubKey = vout_obj[0].get("scriptPubKey")
+        hex_value = scriptPubKey.get("hex")
+        # create a raw transaction
+        ret_hash = self.rpc.createrawtransaction([{"txid": txid, "vout": utxo_vout}], {addr4: amount})
+        # sign transaction
+        sign_raw_transaction = self.rpc.signrawtransaction(ret_hash, [{"txid":txid, "vout":utxo_vout, "redeemScript": redeemScript, "scriptPubKey": hex_value, "amount": amount}],[ priv_addr1])
 
-        
-    
-        return ret
+
+        return sign_raw_transaction
     
 if __name__ == '__main__':
     addr = 'tb1qffcx4mpft5lxk9clsz2du4t03elxl4qwx2hu8z'
