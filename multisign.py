@@ -9,10 +9,7 @@ rpc_host = '192.168.1.86:9332'
 
 rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_password, rpc_host))
 
-#best_block_hash = rpc_connection.getbestblockhash()
-
 #print(best_block_hash)
-
 
 class MultiSign(object):
     
@@ -22,7 +19,6 @@ class MultiSign(object):
 
     def validate_address(self, addr):
         ret = self.rpc.validateaddress(addr)
-        print(ret)
         return ret
     
     def pubkey(self):
@@ -49,6 +45,12 @@ class MultiSign(object):
 
     def add_multisig_address(self, nrequired, keys):
         return self.rpc.addmultisigaddress(nrequired, keys)
+    
+    def dumpprivkey(self, addr):
+        return self.rpc.dumpprivkey(addr)
+    
+    def send_address(self, addr, amount):
+        return self.rpc.sendtoaddress(addr, amount)
 
     def go(self):
         addr1 = self.rpc.getnewaddress()
@@ -57,14 +59,24 @@ class MultiSign(object):
         addr4 = self.rpc.getnewaddress()
         
         # validate each address
-        pub_obj_addr1 = self.validate_address(addr1)
-        pub_obj_addr2 = self.validate_address(addr2)
-        pub_key_addr1 = pub_obj_addr1.get("pubkey")
-        pub_key_addr2 = pub_obj_addr2.get("pubkey")
-        # add 
+        #pub_obj_addr1 = self.validate_address(addr1)
+        #pub_obj_addr2 = self.validate_address(addr2)
+        #pub_key_addr1 = pub_obj_addr1.get("pubkey")
+        #pub_key_addr2 = pub_obj_addr2.get("pubkey")
+        pub_obj_addr3 = self.validate_address(addr3)
+        pub_key_addr3 = pub_obj_addr3.get("pubkey")
+        # dump prive key ..
+        priv_addr1 = self.dumpprivkey(addr1)
+        priv_addr2 = self.dumpprivkey(addr2)
+        # add multi sign address
+        ret = self.add_multisig_address(2, [addr1, addr2, pub_key_addr3])
+        addr5 = ret.get("address")
+        #
+        ret = self.send_address(addr5, 0.01)
+
         
-        
-        return addr1, addr2, pub_key_addr1, pub_key_addr2
+    
+        return ret
     
 if __name__ == '__main__':
     addr = 'tb1qffcx4mpft5lxk9clsz2du4t03elxl4qwx2hu8z'
