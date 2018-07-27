@@ -13,7 +13,7 @@ rpc_host = '192.168.1.86:9332'
 rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_password, rpc_host))
 
 
-first_unspent = rpc_connection.listunspent()[0]
+first_unspent = rpc_connection.listunspent(0)[-1]
 
 print(first_unspent)
 
@@ -29,6 +29,10 @@ print(vout)
 first_unspent_amount = Decimal(first_unspent.get("amount"))
 
 print(first_unspent_amount)
+addr1 =rpc_connection.getnewaddress()
+addr2 =rpc_connectio.getnewaddress()
+addr3 =rpc_connectio.getnewaddress()
+addr4 =rpc_connectio.getnewaddress() # destination address which we will send to 
 raw_change_address = rpc_connection.getrawchangeaddress()
 new_bitcoin_address = rpc_connection.getnewaddress()
 
@@ -36,10 +40,8 @@ print(raw_change_address)
 print(new_bitcoin_address)
 
 fee_obj = rpc_connection.estimatesmartfee(6)
-
 fee = fee_obj.get("feerate")
 
-print(fee)
 
 
 send_amount = first_unspent_amount / 2
@@ -66,12 +68,17 @@ hexstring = rpc_connection.createrawtransaction(
     [{"txid": txid, "vout": vout}], {"data":hex_format_data, new_bitcoin_address: send_amount_string, raw_change_address: change_amount_string})
 
 
+print("=" * 20)
 print(hexstring)
+print("-" * 20)
 
+print("address ==>%s" % address)
 privkey = rpc_connection.dumpprivkey(address)
+print("/" * 20)
 
 sign_raw_transaction = rpc_connection.signrawtransaction(hexstring,[{"txid":txid, "vout":vout, "redeemScript": redeemScript, "scriptPubKey": scriptPubKey, "amount": first_unspent_amount }], [privkey])
 print(sign_raw_transaction)
+print("+" * 20)
 
 raw_hash = sign_raw_transaction.get("hex")
 
