@@ -29,6 +29,7 @@ import zmq.asyncio
 import signal
 import struct
 import sys
+from worker import get_rawtransaction
 
 if (sys.version_info.major, sys.version_info.minor) < (3, 5):
     print("This example only works with Python 3.5 and greater")
@@ -61,12 +62,18 @@ class ZMQHandler():
             print(binascii.hexlify(body))
         elif topic == b"hashtx":
             print('- HASH TX  ('+sequence+') -')
-            print(binascii.hexlify(body))
+            txid = binascii.hexlify(body)
+            txid = txid.decode("utf-8")
+            print(txid)
+            d = get_rawtransaction(txid)
+            print(d)
+
         elif topic == b"rawblock":
             print('- RAW BLOCK HEADER ('+sequence+') -')
             print(binascii.hexlify(body[:80]))
         elif topic == b"rawtx":
             print('- RAW TX ('+sequence+') -')
+
             print(binascii.hexlify(body))
         # schedule ourselves to receive the next message
         asyncio.ensure_future(self.handle())
