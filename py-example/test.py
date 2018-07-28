@@ -36,7 +36,6 @@ print(raw_change_address)
 print(new_bitcoin_address)
 
 fee_obj = rpc_connection.estimatesmartfee(6)
-
 fee = fee_obj.get("feerate")
 
 print(fee)
