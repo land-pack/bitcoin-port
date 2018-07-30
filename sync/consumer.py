@@ -1,25 +1,27 @@
 import time
+import traceback
 import zmq
 import random
 import binascii
-from worker import get_rawtransaction
-from pprint import pprint
+from worker import TxidConsumer
 
 def consumer():
-    consumer_id = random.randrange(1,10005)
-    print("I am consumer #{}".format(consumer_id))
     context = zmq.Context()
     # recieve work
     consumer_receiver = context.socket(zmq.PULL)
     consumer_receiver.connect("tcp://127.0.0.1:5557")
     
+    # instance a Txid Consumer
+    txid_consumer = TxidConsumer()
+
     while True:
         work = consumer_receiver.recv_json()
         txid = work['data']
-        #txid = binascii.hexlify(data)
-        #txid = txid.decode("utf-8")
-        d = get_rawtransaction(txid)
-        pprint(d)
+        try:
+            txid_consumer.consume(txid)
+        except:
+            print(traceback.format_exc())
 
 
-consumer()
+if __name__ == '__main__':
+    consumer()

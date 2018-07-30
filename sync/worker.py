@@ -12,11 +12,19 @@ rpc_host = '192.168.1.86:9332'
 
 rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_password, rpc_host))
 
+class TxidConsumer(object):
 
-def get_rawtransaction(txid):
-    d = rpc_connection.getrawtransaction(txid)
-    p = rpc_connection.decoderawtransaction(d)
-    pprint(p)
+    def get_rawtransaction(self, txid):
+        trans_hex = rpc_connection.getrawtransaction(txid)
+        trans_detail = rpc_connection.decoderawtransaction(trans_hex)
+        return trans_detail
+
+    def consume(self, txid):
+        d = self.get_rawtransaction(txid)
+        pprint(d)
+
+    def save(self):
+        pass
 
 if __name__ == '__main__':
     txid = b'684e9534d14a3edb22546115519d8029842ef76c99b24e9f59735f719867a8c7'
