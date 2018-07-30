@@ -30,6 +30,8 @@ import signal
 import struct
 import sys
 from worker import get_rawtransaction
+from producer import producer
+
 
 if (sys.version_info.major, sys.version_info.minor) < (3, 5):
     print("This example only works with Python 3.5 and greater")
@@ -64,9 +66,12 @@ class ZMQHandler():
             print('- HASH TX  ('+sequence+') -')
             txid = binascii.hexlify(body)
             txid = txid.decode("utf-8")
-            print(txid)
-            d = get_rawtransaction(txid)
-            print(d)
+            producer(txid)
+            #txid = binascii.hexlify(body)
+            #txid = txid.decode("utf-8")
+            #print(txid)
+            #d = get_rawtransaction(txid)
+            #print(d)
 
         elif topic == b"rawblock":
             print('- RAW BLOCK HEADER ('+sequence+') -')
