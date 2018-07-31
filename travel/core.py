@@ -10,12 +10,8 @@ class DigTX(object):
         SET spent=1
         WHERE f_txid=%s
         """
-        for i in vin_list:
-            txid = i.get("txid")
-            # Commit to database
-            print('=' * 100)
-            print(txid)
-            print('+' * 100)
+        spent_txid = [ i.get("txid") for i in vin_list]
+        return spent_txid   
 
 
     def dig(self, txid):
@@ -25,7 +21,7 @@ class DigTX(object):
         vout_list = raw_tx.get("vout")
         
         vin_list = raw_tx.get("vin")
-        self.mark_as_spent(vin_list)
+        spent_txid = self.mark_as_spent(vin_list)
         
         all_list = []
         for i in vout_list:
@@ -39,7 +35,10 @@ class DigTX(object):
                 row = [addr, tx, value, n]
                 rows.append(row)
             all_list.append(rows)
-        return all_list
+        return {
+            "spent": spent_txid,
+            "unspent": all_list
+        }
 
 if __name__ == '__main__':
     txx = DigTX()
