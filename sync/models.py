@@ -55,6 +55,40 @@ class TransactionModel(object):
             print(traceback.format_exc())
             raise
 
+    def balance(self, addr):
+        try:
+            cur = conn.cursor()
+
+            select_sql = """
+                SELECT sum(amount) as value
+                FROM t_unspent_tx
+                WHERE confirmations > 5 AND spent=0 AND addr=%s
+            """
+            cur.execute(select_sql, (addr,))
+            d = cur.fetchone()
+        except:
+            print(traceback.format_exc())
+            raise
+        else:
+            return d
+    
+    def unspent(self, addr):
+        try:
+            cur = conn.cursor()
+
+            select_sql = """
+                SELECT txid, vout, amount
+                FROM t_unspent_tx
+                WHERE confirmations > 5 AND spent=0 AND addr=%s
+            """
+            cur.execute(select_sql, (addr,))
+            d = cur.fetchall()
+        except:
+            print(traceback.format_exc())
+            raise
+        else:
+            return d
+
 
 if __name__ == '__main__':
     tm = TransactionModel()
@@ -72,18 +106,19 @@ if __name__ == '__main__':
 #        "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
 #  	)
 
-    tm.save_unspent(
-    	"2MwmXBD451gf4RCR1uyVw4KjacrHWfAFkEX",
-        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e8",
-        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e9",
-    	37.99996240,
-    	0,
-        [
-        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e7",
-        ])
-
-
-	
+#    tm.save_unspent(
+#    	"2MwmXBD451gf4RCR1uyVw4KjacrHWfAFkEX",
+#        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e8",
+#        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e9",
+#    	37.99996240,
+#    	0,
+#        [
+#        "ca0c4f5c27abfc2a76c0ab0dc3f6c1dc845afe41dfb4ac9aa5fb80d960c007e7",
+#        ])
+#
+    addr = '2MwmXBD451gf4RCR1uyVw4KjacrHWfAFkEF'
+    d = tm.unspent(addr)
+    print(d)
 	
 
 
