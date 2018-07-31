@@ -21,6 +21,7 @@ class TxidConsumer(object):
 
     def consume(self, txid):
         d = self.get_rawtransaction(txid)
+        print('=' * 100)
         pprint(d)
 
     def save(self):
