@@ -14,10 +14,11 @@ class TravelTX(object):
             n = i.get("n")
             scriptPubKey = i.get("scriptPubKey")
             addresses = scriptPubKey.get("addresses")
-            rows = [
-            	(addr, tx, value, n) 
-            	for addr in addresses
-            ]
+            rows = []
+            for addr in addresses:
+                #ret = rpc_connection.validateaddress(addr)
+                row = [addr, tx, value, n]
+                rows.append(row)
             all_list.append(rows)
         return all_list
 
