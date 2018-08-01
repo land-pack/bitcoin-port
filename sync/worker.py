@@ -3,7 +3,7 @@ from decimal import Decimal
 import json
 from pprint import pprint
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-
+from core import DigTx
 
 # rpc_user and rpc_password are set in the bitcoin.conf file
 rpc_user = 'my_rpc'
@@ -14,8 +14,13 @@ rpc_connection = AuthServiceProxy("http://{}:{}@{}".format(rpc_user, rpc_passwor
 
 class TxidConsumer(object):
 
+    def __init__(self):
+        self.dig = DigTx()
+
+
     def get_rawtransaction(self, txid):
         trans_hex = rpc_connection.getrawtransaction(txid)
+        print(trans_hex)
         trans_detail = rpc_connection.decoderawtransaction(trans_hex)
         return trans_detail
 
@@ -28,6 +33,7 @@ class TxidConsumer(object):
         pass
 
 if __name__ == '__main__':
-    txid = b'684e9534d14a3edb22546115519d8029842ef76c99b24e9f59735f719867a8c7'
+    txid = b'a2cf338d06e491c18988511fdb5a257e2b59a162bd8c281962fad5193352e3c5'
     txid = txid.decode("utf-8")
-    print(get_rawtransaction(txid))
+    tc = TxidConsumer()
+    print(tc.consume(txid))

@@ -29,7 +29,7 @@ import zmq.asyncio
 import signal
 import struct
 import sys
-from worker import get_rawtransaction
+#from worker import get_rawtransaction
 from producer import producer
 
 
@@ -66,6 +66,7 @@ class ZMQHandler():
             print('- HASH TX  ('+sequence+') -')
             txid = binascii.hexlify(body)
             txid = txid.decode("utf-8")
+            print(txid)
             producer(txid)
             #txid = binascii.hexlify(body)
             #txid = txid.decode("utf-8")

@@ -29,7 +29,7 @@ class TransactionModel(object):
             raise
 
 
-    def save_unspent(self, addr, txid, pre_txid, amount, vout, spent_txid):
+    def save_unspent(self, addr, txid, amount, vout, spent_txid):
         
 
         try:
@@ -44,8 +44,8 @@ class TransactionModel(object):
 
             insert_sql = """
                 INSERT INTO
-                t_unspent_tx(addr, txid, pre_txid, amount, vout)
-                VALUES(%s, %s, %s, %s, %s)
+                t_unspent_tx(addr, txid,  amount, vout)
+                VALUES(%s, %s, %s, %s)
             """
             cur.execute(insert_sql, (
                 addr, txid, pre_txid, amount, vout))
