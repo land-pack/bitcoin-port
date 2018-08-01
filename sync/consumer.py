@@ -25,9 +25,10 @@ def consumer():
         try:
             ret = dig.dig(txid)
             unspent = ret.get("unspent") or []
-            spent = ret.get("spent")
+            spent = ret.get("spent") or []
             for i in unspent:
                 print(">>> %s" % i)
+                tm.save_unspent(i, spent)
         except:
             print(traceback.format_exc())
 
