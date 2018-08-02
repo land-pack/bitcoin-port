@@ -61,7 +61,15 @@ class ZMQHandler():
           sequence = str(msgSequence)
         if topic == b"hashblock":
             print('- HASH BLOCK ('+sequence+') -')
-            print(binascii.hexlify(body))
+            context = zmq.Context()
+            zmq_socket = context.socket(zmq.PUSH)
+            zmq_socket.bind("tcp://127.0.0.1:55551")
+
+            block_id = binascii.hexlify(body)
+            block_id = block_id.decode("utf-8")
+            data = {'data': block_id}
+            zmq_socket.send_json(data)
+
         elif topic == b"hashtx":
             print('- HASH TX  ('+sequence+') -')
             txid = binascii.hexlify(body)

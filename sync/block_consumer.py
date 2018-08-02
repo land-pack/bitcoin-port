@@ -4,7 +4,6 @@ import zmq
 import random
 import binascii
 #from worker import TxidConsumer
-from core import DigTX
 from models import TransactionModel 
 
 
@@ -12,7 +11,7 @@ def consumer():
     context = zmq.Context()
     # recieve work
     consumer_receiver = context.socket(zmq.PULL)
-    consumer_receiver.connect("tcp://127.0.0.1:5557")
+    consumer_receiver.connect("tcp://127.0.0.1:5556")
     
     # instance a Txid Consumer
     # txid_consumer = TxidConsumer()
@@ -23,14 +22,11 @@ def consumer():
         work = consumer_receiver.recv_json()
         txid = work['data']
         try:
-            ret = dig.dig(txid)
-            unspent = ret.get("unspent") or []
-            spent = ret.get("spent") or []
             for i in unspent:
                 print(">>> %s" % i)
-                tm.save_unspent(i, spent)
         except:
             print(traceback.format_exc())
+
 
 
 if __name__ == '__main__':
