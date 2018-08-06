@@ -78,6 +78,6 @@ print(sign_raw_transaction)
 print("+" * 20)
 
 raw_hash = sign_raw_transaction.get("hex")
-
-ret = rpc_connection.sendrawtransaction(raw_hash)
-print(ret)
+print("raw_hash :%s" % raw_hash)
+#ret = rpc_connection.sendrawtransaction(raw_hash)
+#print(ret)
